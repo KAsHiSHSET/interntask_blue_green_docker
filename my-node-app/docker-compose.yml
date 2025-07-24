@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  blue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blue
+    environment:
+      - INSTANCE_NAME=blue
+    volumes:
+      - ./blue:/app
+    networks:
+      - app-network
+
+  green:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: green
+    environment:
+      - INSTANCE_NAME=green
+    volumes:
+      - ./green:/app
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.24
+    container_name: my-node-app-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - blue
+      - green
+    networks:
+      - app-network
+
+networks:
+  app-network:
