@@ -1,140 +1,51 @@
-## 📦 Blue-Green Deployment with Docker, PM2 & NGINX
+# 🚀 Blue-Green Deployment with Docker, PM2, and NGINX
 
-This project demonstrates a zero-downtime deployment strategy using Docker, PM2, and NGINX. It uses the Blue-Green Deployment approach to deploy Node.js applications with high availability.
+This project demonstrates **zero-downtime deployments** for a Node.js application using **Docker**, **PM2**, and **NGINX** — ideal for scenarios where continuous availability is critical.
 
-### 📌 What Is This About?
+---
 
-Run two identical Node.js app containers: blue and green
+## 📁 Folder Structure
 
-Use NGINX as a reverse proxy to route traffic to either
+<img width="404" height="465" alt="image" src="https://github.com/user-attachments/assets/190ad93a-9217-45ff-ac78-74a2f8aea7c0" />
 
-Seamlessly switch traffic between the two for updates
 
-Ensure no downtime, even during updates
+---
 
-📁 Folder Structure
+## 🔧 What Does NGINX Do Here?
 
-project-root/
-├── app/                     # Node.js app
-│   ├── app.js
-│   ├── package.json
-│   └── ...
-├── nginx/
-│   └── default.conf         # NGINX reverse proxy config
-├── Dockerfile              # Builds the Node.js app
-├── docker-compose.yml      # Spins up blue & green environments
-└── README.md
+**NGINX** acts as a **reverse proxy**, forwarding incoming HTTP requests to the live container (blue or green). This allows:
 
-### 🚀 Components
+- Seamless updates
+- No downtime for end users
+- Easy rollback if something breaks
 
-🔧 1. Node.js App
+---
 
-A simple Express.js app running on port 3000, managed by PM2.
+## ⚙️ How It Works
 
-🐳 2. Docker & Docker Compose
+1. Two versions of your app (`blue` and `green`) live in separate Docker containers.
+2. NGINX routes traffic to the active container defined in its config.
+3. Updates are made on the inactive container.
+4. Once verified, NGINX is reloaded to switch traffic to the updated container.
 
-Creates two app containers: blue and green. Only one serves traffic at a time.
+---
 
-🌐 3. NGINX
+## ✅ Deployment Steps
 
-Acts as a reverse proxy. It forwards client requests to the currently active container.
+### 1. Configure `.env`
 
-### 🔁 How Blue-Green Deployment Works
+Set your ports and initial live version:
 
-Blue is live, Green is idle
+```env
+BLUE_PORT=3001
+GREEN_PORT=3002
+LIVE=blue
+```
 
-Deploy new code to Green
-
-Test Green container
-
-Update NGINX to route traffic from Blue to Green
-
-Restart NGINX (no impact to clients)
-
-Green is now live, Blue becomes idle
-
-Repeat the process for the next deployment
-
-This allows you to test in production without user impact.
-
-### ⚙️ NGINX Config (nginx/default.conf)
-
-upstream backend {
-    server blue:3000;
-    # To switch, comment above and uncomment:
-    # server green:3000;
-}
-
-server {
-    listen 80;
-
-    location / {
-        proxy_pass http://backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-
-### 🐳 docker-compose.yml (Sample)
-
-version: '3'
-
-services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "8080:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - blue
-      - green
-
-  blue:
-    build: ./app
-    container_name: blue
-    ports:
-      - "3001:3000"
-    command: pm2-runtime app.js
-
-  green:
-    build: ./app
-    container_name: green
-    ports:
-      - "3002:3000"
-    command: pm2-runtime app.js
-
-### 💡 PM2 Role
-
-Keeps the Node.js app running inside each container
-
-Auto-restarts if it crashes
-
-Handles log management
-
-Runs the app in the background using pm2-runtime
-
-✅ Benefits
-
-🚫 Zero downtime
-
-🔁 Safe rollback
-
-🔍 Test new code before exposing
-
-⚙️ Simplifies CI/CD pipelines
-
-### 📥 To Run
-
+### 2.start the Environment
+```bash
 docker-compose up --build -d
-
-To switch traffic:
-
-Edit nginx/default.conf → switch upstream from blue to green
-
-Run docker exec -it <nginx-container-id> nginx -s reload
-
-### 🧹 Cleanup
-
-docker-compose down
-
+```
+3. Visit the App
+Go to: http://localhost:8080
+NGINX will forward requests to the current LIVE app.
