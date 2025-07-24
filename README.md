@@ -41,6 +41,8 @@ BLUE_PORT=3001
 GREEN_PORT=3002
 LIVE=blue
 ```
+<img width="1301" height="213" alt="image" src="https://github.com/user-attachments/assets/aa9a49e0-6d20-40f6-b53e-3c54df91a201" />
+
 
 ### 2.start the Environment
 ```bash
@@ -49,3 +51,6 @@ docker-compose up --build -d
 3. Visit the App
 Go to: http://localhost:8080
 NGINX will forward requests to the current LIVE app.
+
+
+
