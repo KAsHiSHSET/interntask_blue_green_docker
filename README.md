@@ -48,7 +48,7 @@ LIVE=blue
 ```bash
 docker-compose up --build -d
 ```
-3. Visit the App
+### 3. Visit the App
 Go to: http://localhost:8080
 NGINX will forward requests to the current LIVE app.
 
